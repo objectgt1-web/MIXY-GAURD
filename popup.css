@@ -1,0 +1,153 @@
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  width: 350px;
+  background: #10182b;
+  color: white;
+  font-family: Arial, sans-serif;
+}
+
+header {
+  padding: 22px;
+  background: #172440;
+  border-bottom: 3px solid #ffd43b;
+}
+
+.logo {
+  font-size: 24px;
+  font-weight: 900;
+  color: #ffd43b;
+}
+
+.logo span {
+  color: #4da3ff;
+}
+
+.subtitle {
+  color: #9aacc9;
+  font-size: 10px;
+  letter-spacing: 2px;
+  margin-top: 6px;
+}
+
+main {
+  padding: 20px;
+}
+
+.status-card {
+  background: #1b2945;
+  padding: 17px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border: 1px solid #304363;
+}
+
+h2 {
+  margin: 0;
+  font-size: 17px;
+}
+
+#status {
+  color: #4da3ff;
+  font-size: 12px;
+  margin-bottom: 0;
+}
+
+h3 {
+  font-size: 14px;
+  margin-top: 25px;
+}
+
+form {
+  display: flex;
+  gap: 8px;
+}
+
+input[type="text"] {
+  flex: 1;
+  min-width: 0;
+  padding: 12px;
+  border-radius: 8px;
+  border: 1px solid #354867;
+  background: #172440;
+  color: white;
+  outline: none;
+}
+
+button {
+  background: #ffd43b;
+  color: #10182b;
+  border: none;
+  border-radius: 8px;
+  padding: 0 15px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.site {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #1b2945;
+  padding: 12px;
+  margin-top: 9px;
+  border-radius: 8px;
+  font-size: 13px;
+}
+
+.remove {
+  background: #e64b60;
+  color: white;
+  padding: 7px 10px;
+}
+
+footer {
+  text-align: center;
+  margin-top: 25px;
+  color: #7185a7;
+  font-size: 10px;
+}
+
+.switch {
+  position: relative;
+  width: 45px;
+  height: 25px;
+}
+
+.switch input {
+  display: none;
+}
+
+.slider {
+  position: absolute;
+  inset: 0;
+  background: #53617a;
+  border-radius: 30px;
+  cursor: pointer;
+}
+
+.slider:before {
+  content: "";
+  position: absolute;
+  width: 19px;
+  height: 19px;
+  left: 3px;
+  top: 3px;
+  background: white;
+  border-radius: 50%;
+  transition: .2s;
+}
+
+.switch input:checked + .slider {
+  background: #ffd43b;
+}
+
+.switch input:checked + .slider:before {
+  transform: translateX(20px);
+}
