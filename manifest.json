@@ -1,0 +1,23 @@
+
+{
+  "manifest_version": 3,
+  "name": "MIXY GUARD",
+  "version": "1.0.0",
+  "description": "A personal browser protection and website blocking tool.",
+  "permissions": [
+    "storage",
+    "declarativeNetRequest",
+    "declarativeNetRequestWithHostAccess"
+  ],
+  "host_permissions": [
+    "http://*/*",
+    "https://*/*"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "MIXY GUARD"
+  }
+}
