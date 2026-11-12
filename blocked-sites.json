@@ -1,0 +1,27 @@
+
+{
+  "categories": {
+    "video": [
+      "youtube.com",
+      "twitch.tv",
+      "vimeo.com"
+    ],
+    "social": [
+      "tiktok.com",
+      "instagram.com",
+      "facebook.com",
+      "snapchat.com",
+      "x.com",
+      "reddit.com"
+    ],
+    "gaming": [
+      "roblox.com",
+      "steampowered.com",
+      "epicgames.com"
+    ],
+    "other": [
+      "discord.com",
+      "pinterest.com"
+    ]
+  }
+}
