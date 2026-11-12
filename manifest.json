@@ -20,5 +20,12 @@
   "action": {
     "default_popup": "popup.html",
     "default_title": "MIXY GUARD"
+    ,
+"web_accessible_resources": [
+  {
+    "resources": ["blocked.html"],
+    "matches": ["http://*/*", "https://*/*"]
+  }
+]
   }
 }
