@@ -25,6 +25,7 @@
   {
     "resources": ["blocked.html"],
     "matches": ["http://*/*", "https://*/*"]
+  
   }
 ]
   }
