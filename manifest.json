@@ -7,7 +7,8 @@
   "permissions": [
     "storage",
     "declarativeNetRequest",
-    "declarativeNetRequestWithHostAccess"
+    "declarativeNetRequestWithHostAccess",
+    "declarativeNetRequestFeedback"
   ],
   "host_permissions": [
     "http://*/*",
@@ -21,4 +22,3 @@
     "default_title": "MIXY GUARD"
   }
 }
-"declarativeNetRequestFeedback"
