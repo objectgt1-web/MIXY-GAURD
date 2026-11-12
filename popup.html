@@ -1,0 +1,48 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>MIXY GUARD</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <header>
+    <div class="logo">MIXY<span>GUARD</span></div>
+    <div class="subtitle">BROWSER PROTECTION</div>
+  </header>
+
+  <main>
+    <section class="status-card">
+      <div>
+        <h2>Protection</h2>
+        <p id="status">Loading...</p>
+      </div>
+      <label class="switch">
+        <input type="checkbox" id="enabled">
+        <span class="slider"></span>
+      </label>
+    </section>
+
+    <h3>Blocked Websites</h3>
+
+    <form id="addForm">
+      <input
+        id="domain"
+        type="text"
+        placeholder="example.com"
+        autocomplete="off"
+        required
+      >
+      <button type="submit">ADD</button>
+    </form>
+
+    <div id="siteList"></div>
+
+    <footer>MIXY GUARD · VERSION 1.0</footer>
+  </main>
+
+  <script src="popup.js"></script>
+</body>
+</html>
