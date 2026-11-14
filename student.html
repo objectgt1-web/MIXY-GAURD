@@ -1,1 +1,71 @@
 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>MIXY GUARD Student</title>
+<style>
+*{box-sizing:border-box}
+body{
+ margin:0;min-height:100vh;display:grid;place-items:center;
+ background:#090910;color:white;font-family:Arial,sans-serif;padding:20px
+}
+.card{
+ width:100%;max-width:460px;background:#151522;
+ border:1px solid #29293c;border-radius:18px;padding:28px
+}
+h1{margin:0 0 8px}
+p{color:#aaa;line-height:1.5}
+input{
+ width:100%;padding:14px;margin:10px 0;background:#090910;
+ border:1px solid #39394e;border-radius:9px;color:white;font-size:16px
+}
+button{
+ width:100%;padding:14px;margin-top:12px;border:0;border-radius:9px;
+ background:#8b5cf6;color:white;font-weight:bold;cursor:pointer
+}
+button:disabled{opacity:.5;cursor:not-allowed}
+.secondary{background:#29293c}
+.danger{background:#a83248}
+.notice{
+ padding:13px;background:#242033;border-radius:10px;
+ font-size:13px;color:#ccc;line-height:1.5
+}
+#message{margin-top:15px;color:#c4a7ff;line-height:1.5}
+#shareSection{display:none;margin-top:22px;padding-top:18px;border-top:1px solid #39394e}
+#requestMessage{color:#fbbf24;line-height:1.5;margin-top:12px}
+video{width:100%;margin-top:12px;border-radius:10px;background:#090910}
+</style>
+</head>
+<body>
+<div class="card">
+ <h1>MIXY <span style="color:#8b5cf6">GUARD</span></h1>
+ <p>Join your teacher's classroom.</p>
+
+ <div class="notice">
+  Screen sharing is optional. Your teacher must request it first.
+  You choose whether to share, and you can stop at any time.
+ </div>
+
+ <form id="joinForm">
+  <input id="studentName" type="text" placeholder="Your name" maxlength="50" required>
+  <input id="code" type="text" placeholder="Classroom join code" maxlength="30" required>
+  <button type="submit">JOIN CLASSROOM</button>
+ </form>
+
+ <div id="message"></div>
+
+ <section id="shareSection">
+  <h2>Screen sharing</h2>
+  <p id="requestMessage">Waiting for your teacher.</p>
+  <button id="acceptButton" hidden>ACCEPT AND CHOOSE SCREEN</button>
+  <button id="declineButton" class="secondary" hidden>DECLINE REQUEST</button>
+  <button id="stopButton" class="danger" hidden>STOP SHARING</button>
+  <video id="preview" autoplay muted playsinline hidden></video>
+ </section>
+</div>
+<script src="student.js"></script>
+</body>
+</html>
+
