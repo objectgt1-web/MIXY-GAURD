@@ -18,40 +18,75 @@ const rtcConfig = {
   ]
 };
 
-// CHROME STORAGE
+// STORAGE
+// Works on a normal website and inside the Chrome extension.
 
 function storageGet(keys) {
   return new Promise((resolve, reject) => {
-    if (!globalThis.chrome?.storage?.local) {
-      reject(new Error("Open the dashboard from the MIXY GUARD extension."));
+    if (globalThis.chrome?.storage?.local) {
+      chrome.storage.local.get(keys, result => {
+        const error = chrome.runtime?.lastError;
+        if (error) reject(new Error(error.message));
+        else resolve(result || {});
+      });
       return;
     }
 
-    chrome.storage.local.get(keys, result => {
-      const error = chrome.runtime?.lastError;
-      if (error) reject(new Error(error.message));
-      else resolve(result || {});
-    });
+    try {
+      const result = {};
+
+      keys.forEach(key => {
+        const value = sessionStorage.getItem(key);
+        result[key] = value ? JSON.parse(value) : undefined;
+      });
+
+      resolve(result);
+    } catch (error) {
+      reject(error);
+    }
   });
 }
 
 function storageSet(data) {
   return new Promise((resolve, reject) => {
-    chrome.storage.local.set(data, () => {
-      const error = chrome.runtime?.lastError;
-      if (error) reject(new Error(error.message));
-      else resolve();
-    });
+    if (globalThis.chrome?.storage?.local) {
+      chrome.storage.local.set(data, () => {
+        const error = chrome.runtime?.lastError;
+        if (error) reject(new Error(error.message));
+        else resolve();
+      });
+      return;
+    }
+
+    try {
+      Object.entries(data).forEach(([key, value]) => {
+        sessionStorage.setItem(key, JSON.stringify(value));
+      });
+
+      resolve();
+    } catch (error) {
+      reject(error);
+    }
   });
 }
 
 function storageRemove(keys) {
   return new Promise((resolve, reject) => {
-    chrome.storage.local.remove(keys, () => {
-      const error = chrome.runtime?.lastError;
-      if (error) reject(new Error(error.message));
-      else resolve();
-    });
+    if (globalThis.chrome?.storage?.local) {
+      chrome.storage.local.remove(keys, () => {
+        const error = chrome.runtime?.lastError;
+        if (error) reject(new Error(error.message));
+        else resolve();
+      });
+      return;
+    }
+
+    try {
+      keys.forEach(key => sessionStorage.removeItem(key));
+      resolve();
+    } catch (error) {
+      reject(error);
+    }
   });
 }
 
@@ -131,64 +166,100 @@ async function loadDashboard() {
   await loadClassrooms();
 }
 
-document.getElementById("loginForm").addEventListener("submit", async e => {
-  e.preventDefault();
+const loginForm = document.getElementById("loginForm");
 
-  const button = document.getElementById("loginButton");
-  const message = document.getElementById("loginMessage");
+if (loginForm) {
+  loginForm.addEventListener("submit", async e => {
+    e.preventDefault();
 
-  button.disabled = true;
-  message.textContent = "Signing in...";
+    const button = document.getElementById("loginButton");
+    const message = document.getElementById("loginMessage");
 
-  try {
-    const response = await fetch(
-      SUPABASE_URL + "/auth/v1/token?grant_type=password",
-      {
-        method: "POST",
-        headers: {
-          apikey: SUPABASE_KEY,
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-          email: document.getElementById("email").value.trim(),
-          password: document.getElementById("password").value
-        })
+    if (!button || !message) return;
+
+    button.disabled = true;
+    message.textContent = "Signing in...";
+
+    try {
+      const response = await fetch(
+        SUPABASE_URL + "/auth/v1/token?grant_type=password",
+        {
+          method: "POST",
+          headers: {
+            apikey: SUPABASE_KEY,
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            email: document.getElementById("email").value.trim(),
+            password: document.getElementById("password").value
+          })
+        }
+      );
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(
+          data.msg ||
+          data.message ||
+          data.error_description ||
+          "Login failed"
+        );
       }
-    );
 
-    const data = await response.json();
+      accessToken = data.access_token;
+      currentUser = data.user;
 
-    if (!response.ok) {
-      throw new Error(data.msg || data.message || "Login failed");
+      await storageSet({
+        mixyGuardToken: accessToken,
+        mixyGuardUser: currentUser
+      });
+
+      message.textContent = "";
+      await loadDashboard();
+
+    } catch (error) {
+      console.error("Login error:", error);
+      message.textContent = "Login error: " + error.message;
+    } finally {
+      button.disabled = false;
     }
+  });
+}
 
-    accessToken = data.access_token;
-    currentUser = data.user;
+const logoutButton = document.getElementById("logout");
 
-    await storageSet({
-      mixyGuardToken: accessToken,
-      mixyGuardUser: currentUser
-    });
+if (logoutButton) {
+  logoutButton.addEventListener("click", async () => {
+    try {
+      closeTeacherViewer();
 
-    message.textContent = "";
-    await loadDashboard();
+      if (accessToken) {
+        await fetch(SUPABASE_URL + "/auth/v1/logout", {
+          method: "POST",
+          headers: {
+            apikey: SUPABASE_KEY,
+            Authorization: "Bearer " + accessToken
+          }
+        });
+      }
 
-  } catch (error) {
-    message.textContent = "Login error: " + error.message;
-  } finally {
-    button.disabled = false;
-  }
-});
+      accessToken = "";
+      currentUser = null;
 
-document.getElementById("logout").addEventListener("click", async () => {
-  closeTeacherViewer();
+      await storageRemove([
+        "mixyGuardToken",
+        "mixyGuardUser"
+      ]);
 
-  accessToken = "";
-  currentUser = null;
+      showLogin();
 
-  await storageRemove(["mixyGuardToken", "mixyGuardUser"]);
-  showLogin();
-});
+    } catch (error) {
+      console.error("Logout error:", error);
+      showLogin();
+    }
+  });
+}
 
 // CLASSROOM CREATION
 
@@ -199,39 +270,44 @@ function makeCode() {
   return Array.from(bytes, b => chars[b % chars.length]).join("");
 }
 
-document.getElementById("createForm").addEventListener("submit", async e => {
-  e.preventDefault();
+const createForm = document.getElementById("createForm");
 
-  const button = document.getElementById("createButton");
-  const message = document.getElementById("createMessage");
-  const name = document.getElementById("className").value.trim();
+if (createForm) {
+  createForm.addEventListener("submit", async e => {
+    e.preventDefault();
 
-  if (!name) return;
+    const button = document.getElementById("createButton");
+    const message = document.getElementById("createMessage");
+    const name = document.getElementById("className").value.trim();
 
-  button.disabled = true;
-  message.textContent = "Creating classroom...";
+    if (!name) return;
 
-  try {
-    await api("/rest/v1/classrooms", {
-      method: "POST",
-      headers: { Prefer: "return=representation" },
-      body: JSON.stringify({
-        teacher_id: currentUser.id,
-        class_name: name,
-        join_code: makeCode()
-      })
-    });
+    button.disabled = true;
+    message.textContent = "Creating classroom...";
 
-    document.getElementById("className").value = "";
-    message.textContent = "Classroom created!";
-    await loadClassrooms();
+    try {
+      await api("/rest/v1/classrooms", {
+        method: "POST",
+        headers: { Prefer: "return=representation" },
+        body: JSON.stringify({
+          teacher_id: currentUser.id,
+          class_name: name,
+          join_code: makeCode()
+        })
+      });
 
-  } catch (error) {
-    message.textContent = "Error: " + error.message;
-  } finally {
-    button.disabled = false;
-  }
-});
+      document.getElementById("className").value = "";
+      message.textContent = "Classroom created!";
+
+      await loadClassrooms();
+
+    } catch (error) {
+      message.textContent = "Error: " + error.message;
+    } finally {
+      button.disabled = false;
+    }
+  });
+}
 
 // STUDENT MANAGEMENT
 
@@ -339,8 +415,6 @@ async function requestStudentScreen(student, classroomId, button) {
       id: requestId,
       studentName: student.student_name
     };
-
-    console.log("Screen request created:", requestId);
 
     lastSignalId = 0;
     pendingCandidates = [];
@@ -475,8 +549,6 @@ async function handleStudentSignals() {
           type: "answer",
           description: teacherPeer.localDescription
         });
-
-        console.log("Teacher sent WebRTC answer.");
       }
 
       if (payload.type === "candidate") {
@@ -486,13 +558,10 @@ async function handleStudentSignals() {
 
   } catch (error) {
     if (!error.message.toLowerCase().includes("not accepted")) {
-      console.error("Teacher signal polling failed:", {
-        requestId: activeRequest?.id,
-        error: error.message
-      });
+      console.error("Teacher signal polling failed:", error);
 
-      document.getElementById("viewerStatus").textContent =
-        error.message;
+      const status = document.getElementById("viewerStatus");
+      if (status) status.textContent = error.message;
     }
   } finally {
     handlingSignals = false;
@@ -657,6 +726,11 @@ async function loadStudents(classroomId, container) {
 
 async function loadClassrooms() {
   const container = document.getElementById("classrooms");
+
+  if (!container) {
+    throw new Error("The classrooms element is missing from dashboard.html");
+  }
+
   container.textContent = "Loading...";
 
   try {
@@ -725,6 +799,7 @@ async function loadClassrooms() {
 
   } catch (error) {
     container.textContent = "Could not load classrooms: " + error.message;
+    throw error;
   }
 }
 
@@ -747,16 +822,28 @@ async function start() {
 
     currentUser = await api("/auth/v1/user");
 
+    await storageSet({
+      mixyGuardToken: accessToken,
+      mixyGuardUser: currentUser
+    });
+
     prepareViewer();
     await loadDashboard();
 
   } catch (error) {
     console.error("Dashboard startup error:", error);
 
-    if (accessToken) {
-      await storageRemove(["mixyGuardToken", "mixyGuardUser"]);
-      accessToken = "";
+    try {
+      await storageRemove([
+        "mixyGuardToken",
+        "mixyGuardUser"
+      ]);
+    } catch (storageError) {
+      console.error("Could not clear saved login:", storageError);
     }
+
+    accessToken = "";
+    currentUser = null;
 
     showLogin();
   }
