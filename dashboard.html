@@ -1,0 +1,106 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>MIXY GUARD Classroom</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#090910;color:white;font-family:Arial,sans-serif}
+header{padding:22px 30px;background:#12121d;border-bottom:1px solid #29293c;display:flex;justify-content:space-between;align-items:center}
+.logo{font-size:23px;font-weight:bold;letter-spacing:2px}
+.logo span{color:#8b5cf6}
+main{max-width:1000px;margin:auto;padding:30px}
+.card{background:#151522;border:1px solid #29293c;border-radius:15px;padding:22px;margin:20px 0}
+h1,h2{margin-top:0}
+.muted{color:#999;line-height:1.5}
+input{width:100%;padding:13px;margin:8px 0 15px;background:#090910;border:1px solid #39394e;border-radius:8px;color:white}
+button{background:#8b5cf6;color:white;border:0;padding:13px 18px;border-radius:8px;cursor:pointer;font-weight:bold}
+button:hover{background:#7545d6}
+button.secondary{background:#29293c}
+button.danger{background:#a83248}
+button.danger:hover{background:#c43d57}
+.hidden{display:none!important}
+.message{margin-top:12px;color:#c4a7ff;white-space:pre-wrap}
+.classroom{padding:18px 0;border-bottom:1px solid #29293c}
+.classroom-top{display:flex;justify-content:space-between;align-items:center;gap:15px;flex-wrap:wrap}
+.code{font-size:19px;color:#c4a7ff;font-weight:bold;letter-spacing:2px}
+.stats{display:grid;grid-template-columns:repeat(2,1fr);gap:15px}
+.stat{font-size:28px;font-weight:bold;margin-top:10px}
+.students-list{margin-top:18px}
+.student-row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px;margin-top:9px;background:#0d0d18;border:1px solid #29293c;border-radius:10px;flex-wrap:wrap}
+.student-name{background:transparent;padding:8px 0;text-align:left;font-size:15px;color:white}
+.student-name:hover{background:transparent;color:#c4a7ff}
+.student-actions{display:flex;gap:8px;flex-wrap:wrap}
+.student-actions button{font-size:12px;padding:9px 12px}
+.student-panel{margin-top:12px;padding:15px;background:#11111e;border:1px solid #39394e;border-radius:10px}
+.student-panel h3{margin-top:0}
+.viewer{background:#090910;border:1px solid #39394e;border-radius:10px;padding:18px;margin-top:15px}
+@media(max-width:600px){
+ main{padding:15px}
+ .stats{grid-template-columns:1fr}
+ header{padding:18px}
+ .student-row{align-items:flex-start;flex-direction:column}
+}
+</style>
+</head>
+<body>
+<header>
+ <div class="logo">MIXY <span>GUARD</span></div>
+ <button id="logout" class="secondary hidden">LOG OUT</button>
+</header>
+
+<main>
+<section id="loginSection">
+ <div class="card">
+  <h1>Teacher Login</h1>
+  <p class="muted">Sign in to manage your classroom.</p>
+  <form id="loginForm">
+   <label>Email</label>
+   <input id="email" type="email" placeholder="Teacher email" required>
+   <label>Password</label>
+   <input id="password" type="password" placeholder="Password" required>
+   <button type="submit" id="loginButton">SIGN IN</button>
+  </form>
+  <div class="message" id="loginMessage"></div>
+ </div>
+</section>
+
+<section id="dashboardSection" class="hidden">
+ <h1>Teacher Dashboard</h1>
+ <p class="muted">Welcome to MIXY GUARD Classroom.</p>
+
+ <div class="stats">
+  <div class="card">Connected Students<div class="stat" id="studentCount">0</div></div>
+  <div class="card">Your Classrooms<div class="stat" id="classCount">0</div></div>
+ </div>
+
+ <div class="card">
+  <h2>Create Classroom</h2>
+  <form id="createForm">
+   <input id="className" maxlength="50" placeholder="Classroom name" required>
+   <button type="submit" id="createButton">CREATE CLASSROOM</button>
+  </form>
+  <div class="message" id="createMessage"></div>
+ </div>
+
+ <div class="card">
+  <h2>Your Classrooms</h2>
+  <p class="muted">Select a student to open their classroom controls.</p>
+  <div id="classrooms"><p class="muted">Loading classrooms...</p></div>
+ </div>
+
+ <div class="card hidden" id="screenViewer">
+  <h2>Student Screen</h2>
+  <p class="muted" id="viewerStatus">No screen share active.</p>
+  <div class="viewer" id="screenArea">
+   Screen sharing has not started.
+  </div>
+ </div>
+</section>
+</main>
+
+<script src="dashboard.js"></script>
+</body>
+</html>
